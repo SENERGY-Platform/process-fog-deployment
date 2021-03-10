@@ -58,55 +58,35 @@ func (this *DeviceRepo) CheckAccess(token jwt_http_router.JwtImpersonate, kind s
 	return this.reuse.CheckAccess(token, kind, ids)
 }
 
-//TODO: use hub-id in request
+//deprecated
 func (this *DeviceRepo) GetDeviceSelection(token jwt_http_router.JwtImpersonate, descriptions deviceselectionmodel.FilterCriteriaAndSet, filterByInteraction devicemodel.Interaction) (result []deviceselectionmodel.Selectable, err error, code int) {
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
-	payload, err := json.Marshal(descriptions)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-
-	path := "/selectables?json=" + url.QueryEscape(string(payload))
-	if filterByInteraction != "" {
-		path = path + "&filter_interaction=" + url.QueryEscape(string(filterByInteraction))
-	}
-
-	req, err := http.NewRequest(
-		"GET",
-		this.config.DeviceSelectionUrl+path,
-		nil,
-	)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-	req.Header.Set("Authorization", string(token))
-
-	resp, err := client.Do(req)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		debug.PrintStack()
-		return result, errors.New("unexpected statuscode"), resp.StatusCode
-	}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	return result, err, resp.StatusCode
+	return result, errors.New("should never be called"), http.StatusInternalServerError //it would be possible to call GetBulkDeviceSelection() to get a good result but this method is deprecated and should never be used so new code would be wasted effort
 }
 
-//TODO: use hub-id in request
+type BulkRequestElementWithLocalDeviceFilter struct {
+	deviceselectionmodel.BulkRequestElement
+	LocalDevices []string `json:"local_devices"`
+}
+
 func (this *DeviceRepo) GetBulkDeviceSelection(token jwt_http_router.JwtImpersonate, bulk deviceselectionmodel.BulkRequest) (result deviceselectionmodel.BulkResult, err error, code int) {
+	hub, err, code := this.GetHub(string(token), this.hubId)
+	if err != nil {
+		return result, err, code
+	}
+	bulkWithLocalDevices := []BulkRequestElementWithLocalDeviceFilter{}
+	for _, element := range bulk {
+		bulkWithLocalDevices = append(bulkWithLocalDevices, BulkRequestElementWithLocalDeviceFilter{
+			BulkRequestElement: element,
+			LocalDevices:       hub.DeviceLocalIds,
+		})
+	}
+
 	client := http.Client{
 		Timeout: 5 * time.Second,
 	}
 
 	buff := new(bytes.Buffer)
-	err = json.NewEncoder(buff).Encode(bulk)
+	err = json.NewEncoder(buff).Encode(bulkWithLocalDevices)
 	if err != nil {
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError
@@ -136,4 +116,37 @@ func (this *DeviceRepo) GetBulkDeviceSelection(token jwt_http_router.JwtImperson
 	}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	return result, err, resp.StatusCode
+}
+
+func (this *DeviceRepo) GetHub(token string, id string) (result devicemodel.Hub, err error, code int) {
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+	req, err := http.NewRequest(
+		"GET",
+		this.config.DeviceRepoUrl+"/hubs/"+url.PathEscape(id),
+		nil,
+	)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	req.Header.Set("Authorization", token)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		debug.PrintStack()
+		return result, errors.New("unexpected statuscode"), resp.StatusCode
+	}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		code = http.StatusInternalServerError
+	}
+	return
 }
