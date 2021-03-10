@@ -1,0 +1,106 @@
+/*
+ * Copyright 2021 InfAI (CC SES)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controller
+
+import (
+	"context"
+	"github.com/SENERGY-Platform/process-deployment/lib/config"
+	"github.com/SENERGY-Platform/process-deployment/lib/ctrl"
+	"github.com/SENERGY-Platform/process-deployment/lib/ctrl/deployment/parser"
+	"github.com/SENERGY-Platform/process-deployment/lib/ctrl/deployment/stringifier"
+	"github.com/SENERGY-Platform/process-deployment/lib/devices"
+	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/processmodel"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+)
+
+type Controller struct {
+	config                configuration.Config
+	reusedConfig          config.Config
+	processrepo           ProcessRepo
+	deploymentParser      interfaces.DeploymentParser
+	deploymentStringifier interfaces.DeploymentStringifier
+	deviceRepoFactory     DeviceRepoFactory
+	processSync           ProcessSync
+	reusedDeviceRepo      interfaces.Devices
+}
+
+type ProcessSync interface {
+	Deploy(token string, hubId string, deployment deploymentmodel.Deployment) error
+}
+
+type ProcessRepo interface {
+	GetProcessModel(token string, id string) (result processmodel.ProcessModel, err error, errCode int)
+}
+
+type DeviceRepoFactory func(config configuration.Config, reuse interfaces.Devices, hubId string) interfaces.Devices
+
+func New(conf configuration.Config, processrepo ProcessRepo, processSync ProcessSync, deviceRepoFactory DeviceRepoFactory) (*Controller, error) {
+	reusedConfig := &config.ConfigStruct{
+		ApiPort:                     conf.ApiPort,
+		DeviceRepoUrl:               conf.DeviceRepoUrl,
+		ProcessRepoUrl:              conf.ProcessRepoUrl,
+		PermSearchUrl:               conf.PermSearchUrl,
+		DeviceSelectionUrl:          conf.DeviceSelectionUrl,
+		Debug:                       conf.Debug,
+		NotificationUrl:             conf.NotificationUrl,
+		EnableDeviceGroupsForTasks:  conf.EnableDeviceGroupsForTasks,
+		EnableDeviceGroupsForEvents: conf.EnableDeviceGroupsForEvents,
+		DeploymentTopic:             "deployment-topic-replacement",
+	}
+	reusedDeviceRepo, err := devices.Factory.New(context.Background(), reusedConfig)
+	if err != nil {
+		return nil, err
+	}
+	return &Controller{
+		config:                conf,
+		reusedConfig:          reusedConfig,
+		processrepo:           processrepo,
+		deploymentParser:      parser.New(reusedConfig),
+		deploymentStringifier: stringifier.New(reusedConfig),
+		deviceRepoFactory:     deviceRepoFactory,
+		processSync:           processSync,
+		reusedDeviceRepo:      reusedDeviceRepo,
+	}, nil
+}
+
+func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId string) *ctrl.Ctrl {
+	result, _ := ctrl.New(
+		context.Background(),
+		this.reusedConfig,
+		&SourcingReplacement{
+			deploymenttopic: this.reusedConfig.DeploymentTopic,
+			token:           token,
+			hubId:           hubId,
+			processSync:     this.processSync,
+		},
+		nil,
+		this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId),
+		nil)
+	return result
+}
+
+func (this *Controller) ReuseCloudDeploymentWithNewDeviceRepo(hubId string) *ctrl.Ctrl {
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil)
+	return result
+}
+
+func (this *Controller) ReuseCloudDeployment() *ctrl.Ctrl {
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, nil, nil)
+	return result
+}

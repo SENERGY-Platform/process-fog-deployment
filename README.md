@@ -1,0 +1,1 @@
+prepares creates deployments similar to github.com/SENERGY-Platform/process-deployment but for processes that are intended to run on user controlled hardware where the senergy multi gateway is installed (fog)
