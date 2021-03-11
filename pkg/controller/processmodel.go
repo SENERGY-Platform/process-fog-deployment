@@ -18,8 +18,9 @@ package controller
 
 import (
 	"github.com/SENERGY-Platform/process-deployment/lib/model/processmodel"
+	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
 func (this *Controller) GetProcessModel(token string, id string) (result processmodel.ProcessModel, err error, errCode int) {
-	return this.processrepo.GetProcessModel(token, id)
+	return this.processrepo.GetProcessModel(jwt_http_router.JwtImpersonate(token), id)
 }

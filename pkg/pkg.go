@@ -20,12 +20,9 @@ import (
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/controller"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/devicerepo"
-	"github.com/SENERGY-Platform/process-fog-deployment/pkg/processrepo"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/processsync"
 )
 
 func NewController(config configuration.Config) (*controller.Controller, error) {
-	processRepo := processrepo.New(config)
-	processSync := processsync.New(config)
-	return controller.New(config, processRepo, processSync, devicerepo.Factory)
+	return controller.New(config, processsync.New(config), devicerepo.Factory)
 }

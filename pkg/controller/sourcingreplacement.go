@@ -23,15 +23,13 @@ import (
 	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
-	"log"
 )
 
 //mocks sourcing interface to reuse github.com/SENERGY-Platform/process-deployment/lib/ctrl without connecting to kafka
 type SourcingReplacement struct {
-	deploymenttopic string
-	token           string
-	hubId           string
-	processSync     ProcessSync
+	token       string
+	hubId       string
+	processSync ProcessSync
 }
 
 func (this *SourcingReplacement) NewConsumer(ctx context.Context, config config.Config, topic string, listener func(delivery []byte) error) error {
@@ -40,33 +38,27 @@ func (this *SourcingReplacement) NewConsumer(ctx context.Context, config config.
 
 // reroutes deployment requests to github.com/SENERGY-Platform/process-sync
 type ProducerReplacement struct {
-	deploymenttopic string
-	token           string
-	hubId           string
-	processSync     ProcessSync
+	token       string
+	hubId       string
+	processSync ProcessSync
 }
 
 func (this *ProducerReplacement) Produce(topic string, message []byte) error {
-	if topic != "" && topic == this.deploymenttopic {
-		deplMsg := messages.DeploymentCommand{}
-		err := json.Unmarshal(message, &deplMsg)
-		if err != nil {
-			return err
-		}
-		if deplMsg.DeploymentV2 == nil {
-			return errors.New("expect deployment v2 in ProducerReplacement.Produce()")
-		}
-		return this.processSync.Deploy(this.token, this.hubId, *deplMsg.DeploymentV2)
+	deplMsg := messages.DeploymentCommand{}
+	err := json.Unmarshal(message, &deplMsg)
+	if err != nil {
+		return err
 	}
-	log.Println("WARNING: void producer should never be called without deploymenttopic", this.deploymenttopic, topic, message)
-	return nil
+	if deplMsg.DeploymentV2 == nil {
+		return errors.New("expect deployment v2 in ProducerReplacement.Produce()")
+	}
+	return this.processSync.Deploy(this.token, this.hubId, *deplMsg.DeploymentV2)
 }
 
 func (this *SourcingReplacement) NewProducer(ctx context.Context, config config.Config, topic string) (interfaces.Producer, error) {
 	return &ProducerReplacement{
-		deploymenttopic: this.deploymenttopic,
-		token:           this.token,
-		hubId:           this.hubId,
-		processSync:     this.processSync,
+		token:       this.token,
+		hubId:       this.hubId,
+		processSync: this.processSync,
 	}, nil
 }

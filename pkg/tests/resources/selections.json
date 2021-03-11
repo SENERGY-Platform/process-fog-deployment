@@ -1,0 +1,36 @@
+{
+    "path": ["first response", "second response"],
+    "/bulk/selectables": [
+        [
+            {
+                "id": "bulk-id-1",
+                "selectables": [
+                    {
+                        "device": {
+                            "id": "urn:infai:ses:device:dc74369e-89bc-4c7a-ad38-aa4789ea0060",
+                            "name": "option 1"
+                        },
+                        "services": [
+                            {
+                                "id": "urn:infai:ses:service:39415c76-93a3-4e8d-8740-d1a83c64bddc",
+                                "name": "setTargetTemperatureService"
+                            }
+                        ]
+                    },
+                    {
+                        "device": {
+                            "id": "urn:infai:ses:device:dc74369e-89bc-4c7a-ad38-aa4789ea0061",
+                            "name": "option 2"
+                        },
+                        "services": [
+                            {
+                                "id": "urn:infai:ses:service:39415c76-93a3-4e8d-8740-d1a83c64bddc",
+                                "name": "setTargetTemperatureService"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    ]
+}

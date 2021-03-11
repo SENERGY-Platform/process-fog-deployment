@@ -26,13 +26,20 @@ import (
 	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/processmodel"
+	"github.com/SENERGY-Platform/process-deployment/lib/processrepo"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 )
+
+func init() {
+	config.NewId = func() string {
+		return "unused-id"
+	}
+}
 
 type Controller struct {
 	config                configuration.Config
 	reusedConfig          config.Config
-	processrepo           ProcessRepo
+	processrepo           interfaces.ProcessRepo
 	deploymentParser      interfaces.DeploymentParser
 	deploymentStringifier interfaces.DeploymentStringifier
 	deviceRepoFactory     DeviceRepoFactory
@@ -50,7 +57,7 @@ type ProcessRepo interface {
 
 type DeviceRepoFactory func(config configuration.Config, reuse interfaces.Devices, hubId string) interfaces.Devices
 
-func New(conf configuration.Config, processrepo ProcessRepo, processSync ProcessSync, deviceRepoFactory DeviceRepoFactory) (*Controller, error) {
+func New(conf configuration.Config, processSync ProcessSync, deviceRepoFactory DeviceRepoFactory) (*Controller, error) {
 	reusedConfig := &config.ConfigStruct{
 		ApiPort:                     conf.ApiPort,
 		DeviceRepoUrl:               conf.DeviceRepoUrl,
@@ -63,6 +70,12 @@ func New(conf configuration.Config, processrepo ProcessRepo, processSync Process
 		EnableDeviceGroupsForEvents: conf.EnableDeviceGroupsForEvents,
 		DeploymentTopic:             "deployment-topic-replacement",
 	}
+
+	processrepo, err := processrepo.Factory.New(context.Background(), reusedConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	reusedDeviceRepo, err := devices.Factory.New(context.Background(), reusedConfig)
 	if err != nil {
 		return nil, err
@@ -84,10 +97,9 @@ func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId 
 		context.Background(),
 		this.reusedConfig,
 		&SourcingReplacement{
-			deploymenttopic: this.reusedConfig.DeploymentTopic,
-			token:           token,
-			hubId:           hubId,
-			processSync:     this.processSync,
+			token:       token,
+			hubId:       hubId,
+			processSync: this.processSync,
 		},
 		nil,
 		this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId),
