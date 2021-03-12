@@ -147,8 +147,7 @@ func TestController(t *testing.T) {
 		t.Error(*processesCalls)
 	}
 	if !reflect.DeepEqual(*permsearchCalls, map[string][]string{"/v2/query": {
-		`{"resource":"devices","find":null,"list_ids":null,"check_ids":{"ids":["urn:infai:ses:device:dc74369e-89bc-4c7a-ad38-aa4789ea0060"],"rights":"x"}}`,
-		`{"resource":"device-groups","find":null,"list_ids":null,"check_ids":{"ids":[],"rights":"x"}}`}}) {
+		`{"resource":"devices","find":null,"list_ids":null,"check_ids":{"ids":["urn:infai:ses:device:dc74369e-89bc-4c7a-ad38-aa4789ea0060"],"rights":"x"}}`}}) {
 		t.Error(*permsearchCalls)
 	}
 	if !reflect.DeepEqual(*selectionsCalls, map[string][]string{"/bulk/selectables": {`[{"id":"Task_18tgni4","filter_interaction":"event","filter_protocols":null,"criteria":[{"function_id":"urn:infai:ses:controlling-function:99240d90-02dd-4d4f-a47c-069cfe77629c","device_class_id":"urn:infai:ses:device-class:997937d6-c5f3-4486-b67c-114675038393","aspect_id":""}],"include_groups":true,"local_devices":["e3a7a0a7f35c9c9615839eca59db5b7d-43","2"]}]`}}) {
