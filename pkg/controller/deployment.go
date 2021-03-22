@@ -42,6 +42,7 @@ func (this *Controller) CreateDeployment(token string, hubId string, deployment 
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+	jwtToken.Impersonate = jwt_http_router.JwtImpersonate(token)
 	_, err, code = this.ReuseCloudDeploymentWithProcessSync(token, hubId).
 		CreateDeploymentV2(
 			jwtToken,
