@@ -4,7 +4,7 @@
   "device_repo_url": "http://device-repo:8080",
   "device_selection_url": "http://device-selection:8080",
   "perm_search_url": "http://permission-search:8080",
-  "notification_url": "http://notification-service:5000",
+  "notification_url": "{{__SENERGY_NOTIFICATION_URL_PLACEHOLDER}}",
   "process_sync_url": "http://process-sync:8080",
 
   "enable_device_groups_for_tasks": true,
