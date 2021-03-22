@@ -37,11 +37,14 @@ func (this *Controller) PrepareDeployment(token string, hubId string, xml string
 }
 
 func (this *Controller) CreateDeployment(token string, hubId string, deployment deploymentmodel.Deployment, source string) (err error, code int) {
+	jwtToken := jwt_http_router.Jwt{}
+	err = jwt_http_router.GetJWTPayload(token, &jwtToken)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
 	_, err, code = this.ReuseCloudDeploymentWithProcessSync(token, hubId).
 		CreateDeploymentV2(
-			jwt_http_router.Jwt{
-				Impersonate: jwt_http_router.JwtImpersonate(token),
-			},
+			jwtToken,
 			deployment,
 			source)
 	return

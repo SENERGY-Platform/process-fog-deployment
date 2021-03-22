@@ -176,7 +176,7 @@ func GetFreePort() (int, error) {
 	return listener.Addr().(*net.TCPAddr).Port, nil
 }
 
-const token = "Bearer faketoken"
+const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMn0.aLL-BlqRfQLxQkhpxQOezJp3bXWLww19vBPkZdnKzSQ"
 
 func getTestPreparedDeployment(port string) (result deploymentmodel.Deployment, err error) {
 	client := http.Client{
