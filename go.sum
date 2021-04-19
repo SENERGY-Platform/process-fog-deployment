@@ -11,6 +11,8 @@ github.com/SENERGY-Platform/process-deployment v0.0.0-20210209100133-7de48c4174e
 github.com/SENERGY-Platform/process-deployment v0.0.0-20210209100133-7de48c4174ed/go.mod h1:eyvM8814tTDPxzl/eQNIajW2NXGcyFWmBUx35+87xdI=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20210312065838-c5ece7c3f107 h1:+J712xvdE2hLv8Bb2VUtcmDEeAEpDMM5LKhZxaJzbPM=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20210312065838-c5ece7c3f107/go.mod h1:eyvM8814tTDPxzl/eQNIajW2NXGcyFWmBUx35+87xdI=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20210319075801-a9497ad75ea6 h1:yuhu/mZsE/Ntnp9yZSMITzC6PNrTGWtDqnnENVmct34=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20210319075801-a9497ad75ea6/go.mod h1:eyvM8814tTDPxzl/eQNIajW2NXGcyFWmBUx35+87xdI=
 github.com/Shopify/sarama v1.27.2 h1:1EyY1dsxNDUQEv0O/4TsjosHI2CgB1uo9H/v56xzTxc=
 github.com/Shopify/sarama v1.27.2/go.mod h1:g5s5osgELxgM+Md9Qni9rzo7Rbt+vvFQI4bt/Mc93II=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=

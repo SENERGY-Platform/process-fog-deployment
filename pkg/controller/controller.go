@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl"
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl/deployment/parser"
@@ -28,6 +29,7 @@ import (
 	"github.com/SENERGY-Platform/process-deployment/lib/model/processmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/processrepo"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
 func init() {
@@ -103,16 +105,26 @@ func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId 
 		},
 		nil,
 		this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId),
-		nil)
+		nil,
+		ImportsMock{})
 	return result
 }
 
 func (this *Controller) ReuseCloudDeploymentWithNewDeviceRepo(hubId string) *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil)
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil, ImportsMock{})
 	return result
 }
 
 func (this *Controller) ReuseCloudDeployment() *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, nil, nil)
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, nil, nil, ImportsMock{})
 	return result
+}
+
+type ImportsMock struct{}
+
+func (this ImportsMock) CheckAccess(token jwt_http_router.JwtImpersonate, ids []string, alsoCheckTypes bool) (bool, error) {
+	if len(ids) == 0 {
+		return true, nil
+	}
+	return false, errors.New("imports not supported for fog processes")
 }
