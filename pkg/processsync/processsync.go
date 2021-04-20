@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/model"
 	"net/http"
 	"net/url"
 	"time"
@@ -37,7 +37,7 @@ type ProcessSync struct {
 	config configuration.Config
 }
 
-func (this *ProcessSync) Deploy(token string, hubId string, deployment deploymentmodel.Deployment) error {
+func (this *ProcessSync) Deploy(token string, hubId string, deployment model.FogDeploymentMessage) error {
 	requestBody := new(bytes.Buffer)
 	err := json.NewEncoder(requestBody).Encode(deployment)
 	if err != nil {

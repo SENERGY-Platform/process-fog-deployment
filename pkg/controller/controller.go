@@ -25,10 +25,10 @@ import (
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl/deployment/stringifier"
 	"github.com/SENERGY-Platform/process-deployment/lib/devices"
 	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/processmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/processrepo"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/model"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
@@ -50,7 +50,7 @@ type Controller struct {
 }
 
 type ProcessSync interface {
-	Deploy(token string, hubId string, deployment deploymentmodel.Deployment) error
+	Deploy(token string, hubId string, deployment model.FogDeploymentMessage) error
 }
 
 type ProcessRepo interface {
@@ -102,6 +102,7 @@ func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId 
 			token:       token,
 			hubId:       hubId,
 			processSync: this.processSync,
+			devicerepo:  this.reusedDeviceRepo,
 		},
 		nil,
 		this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId),
