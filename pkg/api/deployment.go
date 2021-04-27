@@ -39,11 +39,17 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		msg := messages.PrepareRequest{}
 		err := json.NewDecoder(request.Body).Decode(&msg)
 		if err != nil {
+			if config.Debug {
+				log.Println("ERROR:", err)
+			}
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
 		result, err, code := ctrl.PrepareDeployment(token, hubId, msg.Xml, msg.Svg)
 		if err != nil {
+			if config.Debug {
+				log.Println("ERROR:", err)
+			}
 			http.Error(writer, err.Error(), code)
 			return
 		}
@@ -57,12 +63,18 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		id := params.ByName("modelId")
 		process, err, code := ctrl.GetProcessModel(token, id)
 		if err != nil {
+			if config.Debug {
+				log.Println("ERROR:", err)
+			}
 			http.Error(writer, err.Error(), code)
 			return
 		}
 		start := time.Now()
 		result, err, code := ctrl.PrepareDeployment(token, hubId, process.BpmnXml, process.SvgXml)
 		if err != nil {
+			if config.Debug {
+				log.Println("ERROR:", err)
+			}
 			http.Error(writer, err.Error(), code)
 			return
 		}
@@ -85,6 +97,9 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		}
 		err, code := ctrl.CreateDeployment(token, hubId, deployment, source)
 		if err != nil {
+			if config.Debug {
+				log.Println("ERROR:", err)
+			}
 			http.Error(writer, err.Error(), code)
 			return
 		}
