@@ -17,8 +17,8 @@
 package controller
 
 import (
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/SENERGY-Platform/process-deployment/lib/auth"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"net/http"
 )
 
@@ -27,7 +27,7 @@ func (this *Controller) PrepareDeployment(token string, hubId string, xml string
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
-	err = this.ReuseCloudDeploymentWithNewDeviceRepo(hubId).SetDeploymentOptionsV2(jwt_http_router.JwtImpersonate(token), &result)
+	err = this.ReuseCloudDeploymentWithNewDeviceRepo(hubId).SetDeploymentOptions(auth.Token{Token: token}, &result)
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
@@ -37,14 +37,12 @@ func (this *Controller) PrepareDeployment(token string, hubId string, xml string
 }
 
 func (this *Controller) CreateDeployment(token string, hubId string, deployment deploymentmodel.Deployment, source string) (err error, code int) {
-	jwtToken := jwt_http_router.Jwt{}
-	err = jwt_http_router.GetJWTPayload(token, &jwtToken)
+	jwtToken, err := auth.Parse(token)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	jwtToken.Impersonate = jwt_http_router.JwtImpersonate(token)
 	_, err, code = this.ReuseCloudDeploymentWithProcessSync(token, hubId).
-		CreateDeploymentV2(
+		CreateDeployment(
 			jwtToken,
 			deployment,
 			source)
@@ -52,5 +50,5 @@ func (this *Controller) CreateDeployment(token string, hubId string, deployment 
 }
 
 func (this *Controller) SetExecutableFlag(deployment *deploymentmodel.Deployment) {
-	this.ReuseCloudDeployment().SetExecutableFlagV2(deployment)
+	this.ReuseCloudDeployment().SetExecutableFlag(deployment)
 }

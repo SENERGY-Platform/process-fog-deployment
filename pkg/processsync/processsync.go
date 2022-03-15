@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 	"net/http"
 	"net/url"

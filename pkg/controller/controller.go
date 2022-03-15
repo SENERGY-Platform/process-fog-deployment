@@ -19,17 +19,18 @@ package controller
 import (
 	"context"
 	"errors"
+	"github.com/SENERGY-Platform/process-deployment/lib/auth"
 	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl"
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl/deployment/parser"
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl/deployment/stringifier"
 	"github.com/SENERGY-Platform/process-deployment/lib/devices"
 	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel/v2"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/devicemodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/processmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/processrepo"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
 func init() {
@@ -83,14 +84,16 @@ func New(conf configuration.Config, processSync ProcessSync, deviceRepoFactory D
 		return nil, err
 	}
 	return &Controller{
-		config:                conf,
-		reusedConfig:          reusedConfig,
-		processrepo:           processrepo,
-		deploymentParser:      parser.New(reusedConfig),
-		deploymentStringifier: stringifier.New(reusedConfig),
-		deviceRepoFactory:     deviceRepoFactory,
-		processSync:           processSync,
-		reusedDeviceRepo:      reusedDeviceRepo,
+		config:           conf,
+		reusedConfig:     reusedConfig,
+		processrepo:      processrepo,
+		deploymentParser: parser.New(reusedConfig),
+		deploymentStringifier: stringifier.New(reusedConfig, func(token auth.Token, aspectNodeId string) (aspectNode devicemodel.AspectNode, err error) {
+			return reusedDeviceRepo.GetAspectNode(token, aspectNodeId)
+		}),
+		deviceRepoFactory: deviceRepoFactory,
+		processSync:       processSync,
+		reusedDeviceRepo:  reusedDeviceRepo,
 	}, nil
 }
 
@@ -116,13 +119,13 @@ func (this *Controller) ReuseCloudDeploymentWithNewDeviceRepo(hubId string) *ctr
 }
 
 func (this *Controller) ReuseCloudDeployment() *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, nil, nil, ImportsMock{})
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, ""), nil, ImportsMock{})
 	return result
 }
 
 type ImportsMock struct{}
 
-func (this ImportsMock) CheckAccess(token jwt_http_router.JwtImpersonate, ids []string, alsoCheckTypes bool) (bool, error) {
+func (this ImportsMock) CheckAccess(token auth.Token, ids []string, alsoCheckTypes bool) (bool, error) {
 	if len(ids) == 0 {
 		return true, nil
 	}

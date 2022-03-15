@@ -22,6 +22,7 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
 )
 
@@ -49,10 +50,13 @@ func (this *ProducerReplacement) Produce(topic string, message []byte) error {
 	if err != nil {
 		return err
 	}
-	if deplMsg.DeploymentV2 == nil {
+	if deplMsg.Deployment == nil {
 		return errors.New("expect deployment v2 in ProducerReplacement.Produce()")
 	}
-	return this.processSync.Deploy(this.token, this.hubId, *deplMsg.DeploymentV2)
+	if deplMsg.Version != deploymentmodel.CurrentVersion {
+		return errors.New("unexpected deployment version")
+	}
+	return this.processSync.Deploy(this.token, this.hubId, *deplMsg.Deployment)
 }
 
 func (this *SourcingReplacement) NewProducer(ctx context.Context, config config.Config, topic string) (interfaces.Producer, error) {
