@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/process-fog-deployment
 go 1.17
 
 require (
-	github.com/SENERGY-Platform/process-deployment v0.0.0-20220315091226-cb1de6bfaf6c
+	github.com/SENERGY-Platform/process-deployment v0.0.0-20220711065036-b1fbebf8b7d8
 	github.com/julienschmidt/httprouter v1.3.0
 )
 

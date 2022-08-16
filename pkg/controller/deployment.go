@@ -45,7 +45,8 @@ func (this *Controller) CreateDeployment(token string, hubId string, deployment 
 		CreateDeployment(
 			jwtToken,
 			deployment,
-			source)
+			source,
+			map[string]bool{})
 	return
 }
 
