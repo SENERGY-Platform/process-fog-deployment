@@ -66,7 +66,7 @@ func (this *DeviceRepo) CheckAccess(token auth.Token, kind string, ids []string)
 	return this.reuse.CheckAccess(token, kind, ids)
 }
 
-//deprecated
+// deprecated
 func (this *DeviceRepo) GetDeviceSelection(token auth.Token, descriptions deviceselectionmodel.FilterCriteriaAndSet, filterByInteraction devicemodel.Interaction) (result []deviceselectionmodel.Selectable, err error, code int) {
 	return result, errors.New("should never be called"), http.StatusInternalServerError //it would be possible to call GetBulkDeviceSelection() to get a good result but this method is deprecated and should never be used so new code would be wasted effort
 }
@@ -74,6 +74,18 @@ func (this *DeviceRepo) GetDeviceSelection(token auth.Token, descriptions device
 type BulkRequestElementWithLocalDeviceFilter struct {
 	deviceselectionmodel.BulkRequestElement
 	LocalDevices []string `json:"local_devices"`
+}
+
+func (this *DeviceRepo) GetBulkDeviceSelectionV2(token auth.Token, bulk deviceselectionmodel.BulkRequestV2) (result deviceselectionmodel.BulkResult, err error, code int) {
+	hub, err, code := this.GetHub(token.Jwt(), this.hubId)
+	if err != nil {
+		return result, err, code
+	}
+	for i, element := range bulk {
+		element.LocalDevices = hub.DeviceLocalIds
+		bulk[i] = element
+	}
+	return this.reuse.GetBulkDeviceSelectionV2(token, bulk)
 }
 
 func (this *DeviceRepo) GetBulkDeviceSelection(token auth.Token, bulk deviceselectionmodel.BulkRequest) (result deviceselectionmodel.BulkResult, err error, code int) {

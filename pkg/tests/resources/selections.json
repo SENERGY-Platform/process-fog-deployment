@@ -1,6 +1,6 @@
 {
     "path": ["first response", "second response"],
-    "/bulk/selectables": [
+    "/v2/bulk/selectables": [
         [
             {
                 "id": "bulk-id-1",
