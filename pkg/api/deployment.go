@@ -25,6 +25,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -95,7 +96,16 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err, code := ctrl.CreateDeployment(token, hubId, deployment, source)
+		optionals := map[string]bool{}
+		optionalServiceStr := request.URL.Query().Get("optional_service_selection")
+		if optionalServiceStr != "" {
+			optionals["service"], err = strconv.ParseBool(optionalServiceStr)
+			if err != nil {
+				http.Error(writer, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		err, code := ctrl.CreateDeployment(token, hubId, deployment, source, optionals)
 		if err != nil {
 			if config.Debug {
 				log.Println("ERROR:", err)

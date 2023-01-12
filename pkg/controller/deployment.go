@@ -36,7 +36,7 @@ func (this *Controller) PrepareDeployment(token string, hubId string, xml string
 	return result, nil, http.StatusOK
 }
 
-func (this *Controller) CreateDeployment(token string, hubId string, deployment deploymentmodel.Deployment, source string) (err error, code int) {
+func (this *Controller) CreateDeployment(token string, hubId string, deployment deploymentmodel.Deployment, source string, optionals map[string]bool) (err error, code int) {
 	jwtToken, err := auth.Parse(token)
 	if err != nil {
 		return err, http.StatusInternalServerError
@@ -46,7 +46,7 @@ func (this *Controller) CreateDeployment(token string, hubId string, deployment 
 			jwtToken,
 			deployment,
 			source,
-			map[string]bool{})
+			optionals)
 	return
 }
 
