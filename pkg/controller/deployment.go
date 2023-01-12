@@ -50,6 +50,10 @@ func (this *Controller) CreateDeployment(token string, hubId string, deployment 
 	return
 }
 
+func (this *Controller) RemoveDeployment(token auth.Token, hubId string, id string) (err error, code int) {
+	return this.processSync.Remove(token.Jwt(), hubId, id)
+}
+
 func (this *Controller) SetExecutableFlag(deployment *deploymentmodel.Deployment) {
 	this.ReuseCloudDeployment().SetExecutableFlag(deployment)
 }

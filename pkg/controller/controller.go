@@ -52,6 +52,7 @@ type Controller struct {
 
 type ProcessSync interface {
 	Deploy(token string, hubId string, deployment deploymentmodel.Deployment) error
+	Remove(token string, hubId string, id string) (err error, code int)
 }
 
 type ProcessRepo interface {

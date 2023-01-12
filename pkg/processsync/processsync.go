@@ -22,6 +22,7 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -62,5 +63,30 @@ func (this *ProcessSync) Deploy(token string, hubId string, deployment deploymen
 		buf.ReadFrom(resp.Body)
 		err = errors.New(buf.String())
 	}
+	_, _ = io.ReadAll(resp.Body) //ensure empty body to enable connection reuse and prevent memory leaks
 	return err
+}
+
+func (this *ProcessSync) Remove(token string, hubId string, id string) (err error, code int) {
+	req, err := http.NewRequest("DELETE", this.config.ProcessSyncUrl+"/deployments/"+url.PathEscape(hubId)+"/"+url.PathEscape(id), nil)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
+	req.Header.Set("Authorization", token)
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		err = errors.New(buf.String())
+	}
+	_, _ = io.ReadAll(resp.Body) //ensure empty body to enable connection reuse and prevent memory leaks
+	return err, resp.StatusCode
 }

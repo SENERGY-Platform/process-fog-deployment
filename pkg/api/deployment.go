@@ -18,6 +18,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/process-deployment/lib/auth"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
@@ -117,4 +118,20 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		json.NewEncoder(writer).Encode(true)
 	})
 
+	router.DELETE("/deployments/:hubId/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		hubId := params.ByName("hubId")
+		id := params.ByName("id")
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, code := ctrl.RemoveDeployment(token, hubId, id)
+		if err != nil {
+			http.Error(writer, err.Error(), code)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		json.NewEncoder(writer).Encode(true)
+	})
 }
