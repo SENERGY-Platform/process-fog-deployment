@@ -22,6 +22,7 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/model"
 	"io"
 	"net/http"
 	"net/url"
@@ -67,6 +68,30 @@ func (this *ProcessSync) Deploy(token string, hubId string, deployment deploymen
 	return err
 }
 
+func (this *ProcessSync) Start(token string, hubId string, deploymentId string, inputs url.Values) (error, int) {
+	req, err := http.NewRequest("GET", this.config.ProcessSyncUrl+"/deployments/"+url.PathEscape(hubId)+"/"+url.PathEscape(deploymentId)+"/start?"+inputs.Encode(), nil)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
+	req.Header.Set("Authorization", token)
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		err = errors.New(buf.String())
+	}
+	_, _ = io.ReadAll(resp.Body) //ensure empty body to enable connection reuse and prevent memory leaks
+	return err, resp.StatusCode
+}
+
 func (this *ProcessSync) Remove(token string, hubId string, id string) (err error, code int) {
 	req, err := http.NewRequest("DELETE", this.config.ProcessSyncUrl+"/deployments/"+url.PathEscape(hubId)+"/"+url.PathEscape(id), nil)
 	if err != nil {
@@ -89,4 +114,33 @@ func (this *ProcessSync) Remove(token string, hubId string, id string) (err erro
 	}
 	_, _ = io.ReadAll(resp.Body) //ensure empty body to enable connection reuse and prevent memory leaks
 	return err, resp.StatusCode
+}
+
+func (this *ProcessSync) Metadata(token string, hubId string, deploymentId string) (result []model.DeploymentMetadata, err error, code int) {
+	req, err := http.NewRequest("GET", this.config.ProcessSyncUrl+"/metadata/"+url.PathEscape(hubId)+"?deployment_id="+url.QueryEscape(deploymentId), nil)
+	if err != nil {
+		return result, err, http.StatusInternalServerError
+	}
+
+	req.Header.Set("Authorization", token)
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return result, err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		err = errors.New(buf.String())
+		return result, err, resp.StatusCode
+	}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		_, _ = io.ReadAll(resp.Body) //ensure empty body to enable connection reuse and prevent memory leaks
+		return result, err, http.StatusInternalServerError
+	}
+	return result, err, http.StatusOK
 }

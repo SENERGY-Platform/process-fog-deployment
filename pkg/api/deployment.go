@@ -26,6 +26,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -106,7 +107,7 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 				return
 			}
 		}
-		err, code := ctrl.CreateDeployment(token, hubId, deployment, source, optionals)
+		result, err, code := ctrl.CreateDeployment(token, hubId, deployment, source, optionals)
 		if err != nil {
 			if config.Debug {
 				log.Println("ERROR:", err)
@@ -115,7 +116,7 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 			return
 		}
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-		json.NewEncoder(writer).Encode(true)
+		json.NewEncoder(writer).Encode(result)
 	})
 
 	router.DELETE("/deployments/:hubId/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
@@ -134,4 +135,43 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		json.NewEncoder(writer).Encode(true)
 	})
+
+	router.GET("/deployments/:hubId/:id/start", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		hubId := params.ByName("hubId")
+		id := params.ByName("id")
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err, code := ctrl.StartDeployment(token, hubId, id, request.URL.Query())
+		if err != nil {
+			http.Error(writer, err.Error(), code)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(true)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
+}
+
+func parseQueryParameter(query url.Values) (result map[string]interface{}) {
+	if len(query) == 0 {
+		return map[string]interface{}{}
+	}
+	result = map[string]interface{}{}
+	for key, _ := range query {
+		var val interface{}
+		temp := query.Get(key)
+		err := json.Unmarshal([]byte(temp), &val)
+		if err != nil {
+			val = temp
+		}
+		result[key] = val
+	}
+	return result
 }

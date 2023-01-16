@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/api"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
@@ -41,6 +42,10 @@ import (
 func TestController(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	config.NewId = func() string {
+		return "unused-id"
+	}
 
 	permsearchUrl, permsearchCalls := mocks.NewPermSearchMock(ctx)
 	deviceRepoUrl, deviceRepoCalls, err := mocks.NewStatelessRepoMock(ctx, "resources/devicerepository.json")

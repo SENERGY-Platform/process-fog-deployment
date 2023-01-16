@@ -6,6 +6,7 @@ require (
 	github.com/SENERGY-Platform/process-deployment v0.0.0-20221212134333-bdd69ff38c1e
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/julienschmidt/httprouter v1.3.0
+	github.com/lib/pq v1.0.0
 	github.com/ory/dockertest/v3 v3.8.1
 	github.com/segmentio/kafka-go v0.4.15
 	github.com/wvanbergen/kazoo-go v0.0.0-20180202103751-f72d8611297a

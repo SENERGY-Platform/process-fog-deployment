@@ -31,13 +31,9 @@ import (
 	"github.com/SENERGY-Platform/process-deployment/lib/model/processmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/processrepo"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/model"
+	"net/url"
 )
-
-func init() {
-	config.NewId = func() string {
-		return "unused-id"
-	}
-}
 
 type Controller struct {
 	config                configuration.Config
@@ -53,6 +49,8 @@ type Controller struct {
 type ProcessSync interface {
 	Deploy(token string, hubId string, deployment deploymentmodel.Deployment) error
 	Remove(token string, hubId string, id string) (err error, code int)
+	Metadata(token string, hubId string, deploymentId string) (result []model.DeploymentMetadata, err error, code int)
+	Start(token string, hubId string, deploymentId string, inputs url.Values) (error, int)
 }
 
 type ProcessRepo interface {

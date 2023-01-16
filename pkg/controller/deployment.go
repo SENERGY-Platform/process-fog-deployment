@@ -20,6 +20,7 @@ import (
 	"github.com/SENERGY-Platform/process-deployment/lib/auth"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"net/http"
+	"net/url"
 )
 
 func (this *Controller) PrepareDeployment(token string, hubId string, xml string, svg string) (result deploymentmodel.Deployment, err error, code int) {
@@ -36,24 +37,47 @@ func (this *Controller) PrepareDeployment(token string, hubId string, xml string
 	return result, nil, http.StatusOK
 }
 
-func (this *Controller) CreateDeployment(token string, hubId string, deployment deploymentmodel.Deployment, source string, optionals map[string]bool) (err error, code int) {
+func (this *Controller) CreateDeployment(token string, hubId string, deployment deploymentmodel.Deployment, source string, optionals map[string]bool) (result deploymentmodel.Deployment, err error, code int) {
 	jwtToken, err := auth.Parse(token)
 	if err != nil {
-		return err, http.StatusInternalServerError
+		return result, err, http.StatusInternalServerError
 	}
-	_, err, code = this.ReuseCloudDeploymentWithProcessSync(token, hubId).
+	return this.ReuseCloudDeploymentWithProcessSync(token, hubId).
 		CreateDeployment(
 			jwtToken,
 			deployment,
 			source,
 			optionals)
-	return
 }
 
-func (this *Controller) RemoveDeployment(token auth.Token, hubId string, id string) (err error, code int) {
-	return this.processSync.Remove(token.Jwt(), hubId, id)
+func (this *Controller) RemoveDeployment(token auth.Token, hubId string, deploymentId string) (err error, code int) {
+	metadata, err, code := this.processSync.Metadata(token.Jwt(), hubId, deploymentId)
+	if err != nil {
+		return err, code
+	}
+	for _, m := range metadata {
+		err, code = this.processSync.Remove(token.Jwt(), hubId, m.CamundaDeploymentId)
+		if err != nil {
+			return err, code
+		}
+	}
+	return nil, http.StatusOK
 }
 
 func (this *Controller) SetExecutableFlag(deployment *deploymentmodel.Deployment) {
 	this.ReuseCloudDeployment().SetExecutableFlag(deployment)
+}
+
+func (this *Controller) StartDeployment(token auth.Token, hubId string, deploymentId string, inputs url.Values) (err error, code int) {
+	metadata, err, code := this.processSync.Metadata(token.Jwt(), hubId, deploymentId)
+	if err != nil {
+		return err, code
+	}
+	for _, m := range metadata {
+		err, code = this.processSync.Start(token.Jwt(), hubId, m.CamundaDeploymentId, inputs)
+		if err != nil {
+			return err, code
+		}
+	}
+	return nil, http.StatusOK
 }
