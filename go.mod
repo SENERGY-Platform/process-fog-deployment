@@ -3,7 +3,7 @@ module github.com/SENERGY-Platform/process-fog-deployment
 go 1.19
 
 require (
-	github.com/SENERGY-Platform/process-deployment v0.0.0-20221212134333-bdd69ff38c1e
+	github.com/SENERGY-Platform/process-deployment v0.0.0-20230206115324-bb3d272e5a48
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.0.0
@@ -37,7 +37,7 @@ require (
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
-	github.com/opencontainers/runc v1.0.3 // indirect
+	github.com/opencontainers/runc v1.1.4 // indirect
 	github.com/pierrec/lz4 v2.6.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75 // indirect
@@ -49,7 +49,7 @@ require (
 	go.mongodb.org/mongo-driver v1.8.4 // indirect
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20210906170528-6f6e22806c34 // indirect
+	golang.org/x/sys v0.0.0-20211116061358-0a5406a5449c // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
 

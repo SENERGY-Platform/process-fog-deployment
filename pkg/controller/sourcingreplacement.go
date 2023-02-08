@@ -19,14 +19,12 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
-	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
 )
 
-//mocks sourcing interface to reuse github.com/SENERGY-Platform/process-deployment/lib/ctrl without connecting to kafka
+// mocks sourcing interface to reuse github.com/SENERGY-Platform/process-deployment/lib/ctrl without connecting to kafka
 type SourcingReplacement struct {
 	token       string
 	hubId       string
@@ -50,11 +48,9 @@ func (this *ProducerReplacement) Produce(topic string, message []byte) error {
 	if err != nil {
 		return err
 	}
-	if deplMsg.Deployment == nil {
-		return errors.New("expect deployment v2 in ProducerReplacement.Produce()")
-	}
-	if deplMsg.Version != deploymentmodel.CurrentVersion {
-		return errors.New("unexpected deployment version")
+
+	if err = validateDeployment(deplMsg); err != nil {
+		return err
 	}
 	return this.processSync.Deploy(this.token, this.hubId, *deplMsg.Deployment)
 }
