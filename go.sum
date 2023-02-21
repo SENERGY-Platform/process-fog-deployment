@@ -7,8 +7,12 @@ github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEV
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8D7ML55dXQrVaamCz2vxCfdQBasLZfHKk=
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
+github.com/SENERGY-Platform/models/go v0.0.0-20230105115534-8edcf0271764 h1:myrBDPxjD0l1QUwYbqTcDqiIOCMaPLMHxkxpspYtEck=
+github.com/SENERGY-Platform/models/go v0.0.0-20230105115534-8edcf0271764/go.mod h1:GqfI+440B0Yz7NshAxm4PgVwRGcNqvbxddoB+xUa6HQ=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20230206115324-bb3d272e5a48 h1:WsyfN5Jj73XqtW8mib0dcOSILivdGcRX1233xl25QH8=
 github.com/SENERGY-Platform/process-deployment v0.0.0-20230206115324-bb3d272e5a48/go.mod h1:9vUm5k1ztXDmiC2dRBJwi26Fsoe+CkYS/Fy9U9nf9ds=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20230220144253-c09c2b3cfff5 h1:+LDQ4dY7V/XMjo7fop/28h0ZJgIkYmQLRYD6hXWQr8c=
+github.com/SENERGY-Platform/process-deployment v0.0.0-20230220144253-c09c2b3cfff5/go.mod h1:vqh9BCV6is5UVKIFRAjiKQrHet5WSgbdITV0YI+vFQ4=
 github.com/beevik/etree v1.1.0 h1:T0xke/WvNtMoCqgzPhkX2r4rjY3GDZFi+FjpRZY2Jbs=
 github.com/beevik/etree v1.1.0/go.mod h1:r8Aw8JqVegEf0w2fDnATrX9VpkMcyFeM0FhwO62wh+A=
 github.com/bits-and-blooms/bitset v1.2.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=

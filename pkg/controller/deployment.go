@@ -34,6 +34,10 @@ func (this *Controller) PrepareDeployment(token string, hubId string, xml string
 	}
 	result.Diagram.Svg = svg
 	this.SetExecutableFlag(&result)
+	result.IncidentHandling = &deploymentmodel.IncidentHandling{
+		Restart: false,
+		Notify:  true,
+	}
 	return result, nil, http.StatusOK
 }
 
