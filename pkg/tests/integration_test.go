@@ -95,7 +95,7 @@ func TestIntegration(t *testing.T) {
 	}
 
 	var camundaPgIp string
-	camundaDb, camundaPgIp, _, err := docker.PostgresWithNetwork(ctx, wg, "camunda")
+	camundaDb, camundaPgIp, _, err := docker.Postgres(ctx, wg, "camunda")
 	if err != nil {
 		t.Error(err)
 		return

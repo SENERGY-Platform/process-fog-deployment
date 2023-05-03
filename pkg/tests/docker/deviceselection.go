@@ -18,30 +18,28 @@ package docker
 
 import (
 	"context"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
-	"net/http"
 	"sync"
 )
 
 func DeviceSelection(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, deviceRepoUrl string, permsearch string) (hostPort string, ipAddress string, err error) {
 	log.Println("start device-selection")
-	pool, err := dockertest.NewPool("")
-	if err != nil {
-		return "", "", err
-	}
-	container, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "ghcr.io/senergy-platform/device-selection",
-		Tag:        "dev",
-		Env: []string{
-			"KAFKA_URL=" + kafkaUrl,
-			"PERM_SEARCH_URL=" + permsearch,
-			"DEVICE_REPO_URL=" + deviceRepoUrl,
-			"DEBUG=true",
+	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image: "ghcr.io/senergy-platform/device-selection:dev",
+			Env: map[string]string{
+				"KAFKA_URL":       kafkaUrl,
+				"PERM_SEARCH_URL": permsearch,
+				"DEVICE_REPO_URL": deviceRepoUrl,
+				"DEBUG":           "true",
+			},
+			ExposedPorts:    []string{"8080/tcp"},
+			WaitingFor:      wait.ForListeningPort("8080/tcp"),
+			AlwaysPullImage: true,
 		},
-	}, func(config *docker.HostConfig) {
-		config.RestartPolicy = docker.RestartPolicy{Name: "unless-stopped"}
+		Started: true,
 	})
 	if err != nil {
 		return "", "", err
@@ -50,18 +48,23 @@ func DeviceSelection(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, d
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
-		log.Println("DEBUG: remove container " + container.Container.Name)
-		container.Close()
+		log.Println("DEBUG: remove container device-selection", c.Terminate(context.Background()))
 	}()
-	go Dockerlog(pool, ctx, container, "DEVICE-SELECTION")
-	hostPort = container.GetPort("8080/tcp")
-	err = pool.Retry(func() error {
-		log.Println("try device-selection connection...")
-		_, err := http.Get("http://localhost:" + hostPort)
-		if err != nil {
-			log.Println(err)
-		}
-		return err
-	})
-	return hostPort, container.Container.NetworkSettings.IPAddress, err
+
+	//err = docker.Dockerlog(ctx, c, "DEVICE-SELECTION")
+	if err != nil {
+		return "", "", err
+	}
+
+	ipAddress, err = c.ContainerIP(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	temp, err := c.MappedPort(ctx, "8080/tcp")
+	if err != nil {
+		return "", "", err
+	}
+	hostPort = temp.Port()
+
+	return hostPort, ipAddress, err
 }

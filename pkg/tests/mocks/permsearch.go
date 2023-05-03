@@ -19,7 +19,7 @@ package mocks
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/process-deployment/lib/util"
+	"github.com/SENERGY-Platform/permission-search/lib/client"
 	"io"
 	"log"
 	"net/http"
@@ -38,7 +38,7 @@ func NewPermSearchMock(ctx context.Context) (url string, calls *map[string][]str
 			return
 		}
 		callsMap[request.URL.Path] = append(callsMap[request.URL.Path], strings.TrimSpace(string(payload)))
-		query := util.QueryMessage{}
+		query := client.QueryMessage{}
 		err = json.Unmarshal(payload, &query)
 		if err != nil {
 			log.Println("ERROR: NewPermSearchMock()", err)

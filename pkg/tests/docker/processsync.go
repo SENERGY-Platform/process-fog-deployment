@@ -18,32 +18,29 @@ package docker
 
 import (
 	"context"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
-	"net/http"
 	"sync"
 )
 
 func ProcessSync(ctx context.Context, wg *sync.WaitGroup, permsearch string, mqttBroker string, mongoUrl string) (hostPort string, ipAddress string, err error) {
 	log.Println("start process-sync")
-	pool, err := dockertest.NewPool("")
-	if err != nil {
-		return "", "", err
-	}
-	container, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "ghcr.io/senergy-platform/process-sync",
-		Tag:        "dev",
-		Env: []string{
-			"MONGO_URL=" + mongoUrl,
-			"PERMISSIONS_URL=" + permsearch,
-			"MQTT_BROKER=" + mqttBroker,
-			"DEBUG=true",
-			//"MQTT_GROUP_ID=sync",
-			"MQTT_CLIENT_ID=sync",
+	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image: "ghcr.io/senergy-platform/process-sync:dev",
+			Env: map[string]string{
+				"MONGO_URL":       mongoUrl,
+				"PERMISSIONS_URL": permsearch,
+				"MQTT_BROKER":     mqttBroker,
+				"DEBUG":           "true",
+				"MQTT_CLIENT_ID":  "sync",
+			},
+			ExposedPorts:    []string{"8080/tcp"},
+			WaitingFor:      wait.ForListeningPort("8080/tcp"),
+			AlwaysPullImage: true,
 		},
-	}, func(config *docker.HostConfig) {
-		config.RestartPolicy = docker.RestartPolicy{Name: "unless-stopped"}
+		Started: true,
 	})
 	if err != nil {
 		return "", "", err
@@ -52,18 +49,23 @@ func ProcessSync(ctx context.Context, wg *sync.WaitGroup, permsearch string, mqt
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
-		log.Println("DEBUG: remove container " + container.Container.Name)
-		container.Close()
+		log.Println("DEBUG: remove container process-sync", c.Terminate(context.Background()))
 	}()
-	go Dockerlog(pool, ctx, container, "PROCESS-SYNC")
-	hostPort = container.GetPort("8080/tcp")
-	err = pool.Retry(func() error {
-		log.Println("try process-sync connection...")
-		_, err := http.Get("http://localhost:" + hostPort)
-		if err != nil {
-			log.Println(err)
-		}
-		return err
-	})
-	return hostPort, container.Container.NetworkSettings.IPAddress, err
+
+	//err = docker.Dockerlog(ctx, c, "PROCESS-SYNC")
+	if err != nil {
+		return "", "", err
+	}
+
+	ipAddress, err = c.ContainerIP(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	temp, err := c.MappedPort(ctx, "8080/tcp")
+	if err != nil {
+		return "", "", err
+	}
+	hostPort = temp.Port()
+
+	return hostPort, ipAddress, err
 }
