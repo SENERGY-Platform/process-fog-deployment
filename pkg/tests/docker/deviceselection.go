@@ -51,11 +51,6 @@ func DeviceSelection(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, d
 		log.Println("DEBUG: remove container device-selection", c.Terminate(context.Background()))
 	}()
 
-	//err = docker.Dockerlog(ctx, c, "DEVICE-SELECTION")
-	if err != nil {
-		return "", "", err
-	}
-
 	ipAddress, err = c.ContainerIP(ctx)
 	if err != nil {
 		return "", "", err

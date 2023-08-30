@@ -52,11 +52,6 @@ func ProcessSync(ctx context.Context, wg *sync.WaitGroup, permsearch string, mqt
 		log.Println("DEBUG: remove container process-sync", c.Terminate(context.Background()))
 	}()
 
-	//err = docker.Dockerlog(ctx, c, "PROCESS-SYNC")
-	if err != nil {
-		return "", "", err
-	}
-
 	ipAddress, err = c.ContainerIP(ctx)
 	if err != nil {
 		return "", "", err
