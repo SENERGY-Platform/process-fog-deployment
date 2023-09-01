@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 require (
 	github.com/SENERGY-Platform/permission-search v0.0.0-20230829121111-76c8c176bddb
-	github.com/SENERGY-Platform/process-deployment v0.0.0-20230816090614-383f4ed54e16
+	github.com/SENERGY-Platform/process-deployment v0.0.0-20230901093000-6ea610063ac2
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.0.0
