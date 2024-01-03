@@ -98,6 +98,8 @@ func TestController(t *testing.T) {
 		return
 	}
 
+	time.Sleep(time.Second)
+
 	prepared, err := getTestPreparedDeployment(config.ApiPort)
 	if err != nil {
 		t.Error(err)
