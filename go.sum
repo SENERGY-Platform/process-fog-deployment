@@ -14,8 +14,8 @@ github.com/SENERGY-Platform/models/go v0.0.0-20230824080159-16585960df38 h1:PDvF
 github.com/SENERGY-Platform/models/go v0.0.0-20230824080159-16585960df38/go.mod h1:bCREPNRN4P8oxLgpC3/ZKK4jXSy4MSPXoiomhohE+aw=
 github.com/SENERGY-Platform/permission-search v0.0.7 h1:7W+2uYK7REbzCEmLrVOP4Q84hKP2ID4Y4RdJ5wQZBdA=
 github.com/SENERGY-Platform/permission-search v0.0.7/go.mod h1:P5tkakrFWMMbNVeDsW0RBd7tYOgC82cr7+dqNI8EcFc=
-github.com/SENERGY-Platform/process-deployment v0.0.4 h1:QQRJBj5+ZCrfbrN1OIS6Kc1bYpETzNWnncf82eMSuys=
-github.com/SENERGY-Platform/process-deployment v0.0.4/go.mod h1:Z4C59RWzt3NW7BvYbz5/oUXGlR6y1bcWnfz2KZXJO4M=
+github.com/SENERGY-Platform/process-deployment v0.0.5 h1:wM8HFcAlPg50coAmma7hN1pW8Z91wld8pVkrwD+KlI4=
+github.com/SENERGY-Platform/process-deployment v0.0.5/go.mod h1:Z4C59RWzt3NW7BvYbz5/oUXGlR6y1bcWnfz2KZXJO4M=
 github.com/SENERGY-Platform/service-commons v0.0.0-20240314112519-5bde66831b0d h1:nyiUEVqQc4njAz98rdRFOBivN7Ar9tiI7A/ej0POEx0=
 github.com/SENERGY-Platform/service-commons v0.0.0-20240314112519-5bde66831b0d/go.mod h1:1p2CQPNtler5leXqNgaOfr7DlgZUydrQlQYA97ycm4k=
 github.com/aws/aws-sdk-go v1.42.27/go.mod h1:OGr6lGMAKGlG9CVrYnWYDKIyb829c6EVBRjxqjmPepc=
