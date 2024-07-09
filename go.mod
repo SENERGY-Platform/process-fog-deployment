@@ -3,9 +3,9 @@ module github.com/SENERGY-Platform/process-fog-deployment
 go 1.22
 
 require (
-	github.com/SENERGY-Platform/permission-search v0.0.14
-	github.com/SENERGY-Platform/process-deployment v0.0.6
-	github.com/SENERGY-Platform/service-commons v0.0.0-20240423132428-8eccbc027e71
+	github.com/SENERGY-Platform/permission-search v0.0.16
+	github.com/SENERGY-Platform/process-deployment v0.0.7
+	github.com/SENERGY-Platform/service-commons v0.0.0-20240708085423-94423a495d7f
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.9
