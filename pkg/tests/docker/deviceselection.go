@@ -24,14 +24,13 @@ import (
 	"sync"
 )
 
-func DeviceSelection(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, deviceRepoUrl string, permsearch string) (hostPort string, ipAddress string, err error) {
+func DeviceSelection(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, deviceRepoUrl string) (hostPort string, ipAddress string, err error) {
 	log.Println("start device-selection")
 	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			Image: "ghcr.io/senergy-platform/device-selection:dev",
 			Env: map[string]string{
 				"KAFKA_URL":       kafkaUrl,
-				"PERM_SEARCH_URL": permsearch,
 				"DEVICE_REPO_URL": deviceRepoUrl,
 				"DEBUG":           "true",
 			},

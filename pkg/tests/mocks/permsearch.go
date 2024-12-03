@@ -18,8 +18,9 @@ package mocks
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/SENERGY-Platform/permission-search/lib/client"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/api"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/configuration"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
 	"io"
 	"log"
 	"net/http"
@@ -27,34 +28,97 @@ import (
 	"strings"
 )
 
-func NewPermSearchMock(ctx context.Context) (url string, calls *map[string][]string) {
+type PermMock struct {
+	Calls *map[string][]string
+}
+
+func (this *PermMock) CheckPermission(token string, topicId string, id string, permissions ...model.Permission) (access bool, err error, code int) {
+	return true, nil, http.StatusOK
+}
+
+func (this *PermMock) CheckMultiplePermissions(token string, topicId string, ids []string, permissions ...model.Permission) (access map[string]bool, err error, code int) {
+	access = map[string]bool{}
+	for _, id := range ids {
+		access[id] = true
+	}
+	return access, nil, http.StatusOK
+}
+
+func (this *PermMock) ListAccessibleResourceIds(token string, topicId string, options model.ListOptions, permissions ...model.Permission) (ids []string, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) ListComputedPermissions(token string, topic string, ids []string) (result []model.ComputedPermissions, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) ListTopics(token string, options model.ListOptions) (result []model.Topic, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) GetTopic(token string, id string) (result model.Topic, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) RemoveTopic(token string, id string) (err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) SetTopic(token string, topic model.Topic) (result model.Topic, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) AdminListResourceIds(tokenStr string, topicId string, options model.ListOptions) (ids []string, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) AdminLoadFromPermissionSearch(req model.AdminLoadPermSearchRequest) (updateCount int, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) ListResourcesWithAdminPermission(token string, topicId string, options model.ListOptions) (result []model.Resource, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) GetResource(token string, topicId string, id string) (result model.Resource, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) RemoveResource(token string, topicId string, id string) (err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) SetPermission(token string, topicId string, id string, permissions model.ResourcePermissions) (result model.ResourcePermissions, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewPermMock(ctx context.Context) (url string, calls *map[string][]string) {
 	callsMap := map[string][]string{}
 	calls = &callsMap
+	c := &PermMock{Calls: &callsMap}
+	router := api.GetRouter(configuration.Config{}, c)
 	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		payload, err := io.ReadAll(request.Body)
 		if err != nil {
-			log.Println("ERROR: NewPermSearchMock()", err)
+			log.Println("ERROR: NewPermMock()", err)
 			http.Error(writer, err.Error(), 500)
 			return
 		}
-		callsMap[request.URL.Path] = append(callsMap[request.URL.Path], strings.TrimSpace(string(payload)))
-		query := client.QueryMessage{}
-		err = json.Unmarshal(payload, &query)
-		if err != nil {
-			log.Println("ERROR: NewPermSearchMock()", err)
-			http.Error(writer, err.Error(), 500)
-			return
-		}
-		result := map[string]bool{}
-		if query.CheckIds == nil {
-			log.Println("ERROR: NewPermSearchMock() unexpected query", query)
-			http.Error(writer, "unexpected query", 500)
-			return
-		}
-		for _, id := range query.CheckIds.Ids {
-			result[id] = true
-		}
-		json.NewEncoder(writer).Encode(result)
+		pathWithQuery := request.URL.Path + "?" + request.URL.Query().Encode()
+		callsMap[pathWithQuery] = append(callsMap[pathWithQuery], strings.TrimSpace(string(payload)))
+		router.ServeHTTP(writer, request)
 	}))
 	go func() {
 		<-ctx.Done()

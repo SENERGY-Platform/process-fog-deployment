@@ -31,7 +31,7 @@ type ConfigStruct struct {
 	ApiPort            string `json:"api_port"`
 	DeviceRepoUrl      string `json:"device_repo_url"`
 	ProcessRepoUrl     string `json:"process_repo_url"`
-	PermSearchUrl      string `json:"perm_search_url"`
+	PermissionsV2Url   string `json:"permissions_v2_url"`
 	DeviceSelectionUrl string `json:"device_selection_url"`
 	Debug              bool   `json:"debug"`
 	NotificationUrl    string `json:"notification_url"`

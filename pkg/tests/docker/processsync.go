@@ -24,17 +24,17 @@ import (
 	"sync"
 )
 
-func ProcessSync(ctx context.Context, wg *sync.WaitGroup, permsearch string, mqttBroker string, mongoUrl string) (hostPort string, ipAddress string, err error) {
+func ProcessSync(ctx context.Context, wg *sync.WaitGroup, permUrl string, mqttBroker string, mongoUrl string) (hostPort string, ipAddress string, err error) {
 	log.Println("start process-sync")
 	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			Image: "ghcr.io/senergy-platform/process-sync:dev",
 			Env: map[string]string{
-				"MONGO_URL":       mongoUrl,
-				"PERMISSIONS_URL": permsearch,
-				"MQTT_BROKER":     mqttBroker,
-				"DEBUG":           "true",
-				"MQTT_CLIENT_ID":  "sync",
+				"MONGO_URL":          mongoUrl,
+				"PERMISSIONS_V2_URL": permUrl,
+				"MQTT_BROKER":        mqttBroker,
+				"DEBUG":              "true",
+				"MQTT_CLIENT_ID":     "sync",
 			},
 			ExposedPorts:    []string{"8080/tcp"},
 			WaitingFor:      wait.ForListeningPort("8080/tcp"),

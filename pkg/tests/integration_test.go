@@ -55,13 +55,13 @@ func TestIntegration(t *testing.T) {
 		return "test-id"
 	}
 
-	deviceManagerUrl, deviceRepoUrl, permsearchUrl, err := docker.DeviceManagerWithDependencies(ctx, wg)
+	deviceManagerUrl, deviceRepoUrl, permUrl, err := docker.DeviceManagerWithDependencies(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	_, selectionIp, err := docker.DeviceSelection(ctx, wg, "", deviceRepoUrl, permsearchUrl)
+	_, selectionIp, err := docker.DeviceSelection(ctx, wg, "", deviceRepoUrl)
 	if err != nil {
 		t.Error(err)
 		return
@@ -81,7 +81,7 @@ func TestIntegration(t *testing.T) {
 	}
 	mongoUrl := "mongodb://" + mongoIp + ":27017"
 
-	_, syncIp, err := docker.ProcessSync(ctx, wg, permsearchUrl, mqttBroker, mongoUrl)
+	_, syncIp, err := docker.ProcessSync(ctx, wg, permUrl, mqttBroker, mongoUrl)
 	if err != nil {
 		t.Error(err)
 		return
@@ -125,7 +125,7 @@ func TestIntegration(t *testing.T) {
 		ApiPort:                     strconv.Itoa(freePort),
 		DeviceRepoUrl:               deviceRepoUrl,
 		ProcessRepoUrl:              processesUrl,
-		PermSearchUrl:               permsearchUrl,
+		PermissionsV2Url:            permUrl,
 		DeviceSelectionUrl:          "http://" + selectionIp + ":8080",
 		Debug:                       true,
 		NotificationUrl:             "http://notification:8080",

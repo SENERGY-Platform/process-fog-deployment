@@ -64,7 +64,7 @@ func New(conf configuration.Config, processSync ProcessSync, deviceRepoFactory D
 		ApiPort:                     conf.ApiPort,
 		DeviceRepoUrl:               conf.DeviceRepoUrl,
 		ProcessRepoUrl:              conf.ProcessRepoUrl,
-		PermSearchUrl:               conf.PermSearchUrl,
+		PermissionsV2Url:            conf.PermissionsV2Url,
 		DeviceSelectionUrl:          conf.DeviceSelectionUrl,
 		Debug:                       conf.Debug,
 		NotificationUrl:             conf.NotificationUrl,

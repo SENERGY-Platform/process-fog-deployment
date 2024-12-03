@@ -47,7 +47,7 @@ func TestController(t *testing.T) {
 		return "unused-id"
 	}
 
-	permsearchUrl, permsearchCalls := mocks.NewPermSearchMock(ctx)
+	permUrl, permCalls := mocks.NewPermMock(ctx)
 	deviceRepoUrl, deviceRepoCalls, err := mocks.NewStatelessRepoMock(ctx, "resources/devicerepository.json")
 	if err != nil {
 		t.Error(err)
@@ -77,7 +77,7 @@ func TestController(t *testing.T) {
 		ApiPort:                     strconv.Itoa(freePort),
 		DeviceRepoUrl:               deviceRepoUrl,
 		ProcessRepoUrl:              processesUrl,
-		PermSearchUrl:               permsearchUrl,
+		PermissionsV2Url:            permUrl,
 		DeviceSelectionUrl:          selectionsUrl,
 		Debug:                       true,
 		NotificationUrl:             "http://notification:8080",
@@ -160,9 +160,9 @@ func TestController(t *testing.T) {
 	if !reflect.DeepEqual(*processesCalls, map[string][]string{"/processes/e32329bc-3800-4429-986e-4cc208e95fc2": {""}}) {
 		t.Error(*processesCalls)
 	}
-	expectedPermCalls := map[string][]string{"/v3/query": {`{"resource":"devices","find":null,"list_ids":null,"check_ids":{"ids":["urn:infai:ses:device:dc74369e-89bc-4c7a-ad38-aa4789ea0060"],"rights":"x"},"term_aggregate":null,"term_aggregate_limit":0}`}}
-	if !reflect.DeepEqual(*permsearchCalls, expectedPermCalls) {
-		t.Errorf("\n%#v\n%#v", *permsearchCalls, expectedPermCalls)
+	expectedPermCalls := map[string][]string{"/check/devices?ids=urn%3Ainfai%3Ases%3Adevice%3Adc74369e-89bc-4c7a-ad38-aa4789ea0060&permissions=x&version=2": {""}}
+	if !reflect.DeepEqual(*permCalls, expectedPermCalls) {
+		t.Errorf("\n%#v\n%#v", *permCalls, expectedPermCalls)
 	}
 	expectedSelectionsCall := map[string][]string{"/v2/bulk/selectables": {`[{"id":"Task_18tgni4","criteria":[{"function_id":"urn:infai:ses:controlling-function:99240d90-02dd-4d4f-a47c-069cfe77629c","device_class_id":"urn:infai:ses:device-class:997937d6-c5f3-4486-b67c-114675038393","aspect_id":""}],"include_groups":true,"include_imports":false,"include_devices":true,"include_id_modified_devices":false,"local_devices":["e3a7a0a7f35c9c9615839eca59db5b7d-43","2"]}]`}}
 	if !reflect.DeepEqual(*selectionsCalls, expectedSelectionsCall) {
