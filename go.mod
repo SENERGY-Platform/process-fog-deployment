@@ -6,7 +6,7 @@ toolchain go1.23.3
 
 require (
 	github.com/SENERGY-Platform/permissions-v2 v0.0.27
-	github.com/SENERGY-Platform/process-deployment v0.0.12
+	github.com/SENERGY-Platform/process-deployment v0.0.13
 	github.com/SENERGY-Platform/service-commons v0.0.0-20240813072046-91b3195dd8fc
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/julienschmidt/httprouter v1.3.0
