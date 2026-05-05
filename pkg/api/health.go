@@ -17,12 +17,12 @@
 package api
 
 import (
+	"io"
+	"net/http"
+
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/controller"
 	"github.com/julienschmidt/httprouter"
-	"io/ioutil"
-	"log"
-	"net/http"
 )
 
 func init() {
@@ -31,8 +31,8 @@ func init() {
 
 func HealthEndpoints(router *httprouter.Router, config configuration.Config, ctrl *controller.Controller) {
 	router.POST("/health", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		msg, err := ioutil.ReadAll(request.Body)
-		log.Println("INFO: /health", err, string(msg))
+		msg, err := io.ReadAll(request.Body)
+		config.GetLogger().Debug("received /health", "error", err, "msg", string(msg))
 		writer.WriteHeader(http.StatusOK)
 	})
 }

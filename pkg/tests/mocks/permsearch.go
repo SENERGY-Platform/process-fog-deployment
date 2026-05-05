@@ -18,18 +18,29 @@ package mocks
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/permissions-v2/pkg/api"
-	"github.com/SENERGY-Platform/permissions-v2/pkg/configuration"
-	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+
+	"github.com/SENERGY-Platform/permissions-v2/pkg/api"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/configuration"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
 )
 
 type PermMock struct {
 	Calls *map[string][]string
+}
+
+func (this *PermMock) Export(token string, options model.ImportExportOptions) (result model.ImportExport, err error, code int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (this *PermMock) Import(token string, importModel model.ImportExport, options model.ImportExportOptions) (err error, code int) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (this *PermMock) CheckPermission(token string, topicId string, id string, permissions ...model.Permission) (access bool, err error, code int) {

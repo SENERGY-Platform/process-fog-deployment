@@ -19,15 +19,16 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/SENERGY-Platform/process-fog-deployment/pkg"
-	"github.com/SENERGY-Platform/process-fog-deployment/pkg/api"
-	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 	"log"
 	"os"
 	"os/signal"
 	"runtime/debug"
 	"syscall"
 	"time"
+
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/api"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 )
 
 func main() {
@@ -46,19 +47,21 @@ func main() {
 	ctrl, err := pkg.NewController(config)
 	if err != nil {
 		debug.PrintStack()
+		config.GetLogger().Error("FATAL: unable to start controller", "error", err)
 		log.Fatal("FATAL:", err)
 	}
 
 	err = api.Start(config, ctx, ctrl)
 	if err != nil {
 		debug.PrintStack()
+		config.GetLogger().Error("FATAL: unable to start api", "error", err)
 		log.Fatal("FATAL:", err)
 	}
 
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	sig := <-shutdown
-	log.Println("received shutdown signal", sig)
+	config.GetLogger().Info("received shutdown signal", "signal", sig)
 	cancel()
 	time.Sleep(1 * time.Second) //give connections time to close gracefully
 }

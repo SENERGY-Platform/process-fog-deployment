@@ -19,6 +19,8 @@ package controller
 import (
 	"context"
 	"errors"
+	"net/url"
+
 	"github.com/SENERGY-Platform/process-deployment/lib/auth"
 	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl"
@@ -32,7 +34,6 @@ import (
 	"github.com/SENERGY-Platform/process-deployment/lib/processrepo"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/model"
-	"net/url"
 )
 
 type Controller struct {

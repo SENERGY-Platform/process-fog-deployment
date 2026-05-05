@@ -18,49 +18,50 @@ package api
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/process-fog-deployment/pkg/api/util"
-	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
-	"github.com/SENERGY-Platform/process-fog-deployment/pkg/controller"
-	"github.com/SENERGY-Platform/service-commons/pkg/accesslog"
-	"github.com/julienschmidt/httprouter"
+	"errors"
 	"log"
 	"net/http"
 	"reflect"
 	"runtime"
 	"time"
+
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/api/util"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
+	"github.com/SENERGY-Platform/process-fog-deployment/pkg/controller"
+	"github.com/SENERGY-Platform/service-commons/pkg/accesslog"
+	"github.com/julienschmidt/httprouter"
 )
 
 var endpoints []func(*httprouter.Router, configuration.Config, *controller.Controller)
 
 func Start(config configuration.Config, ctx context.Context, ctrl *controller.Controller) (err error) {
-	log.Println("start api on " + config.ApiPort)
+	config.GetLogger().Info("start api on " + config.ApiPort)
 	router := Router(config, ctrl)
 	handler := accesslog.New(util.NewCors(router))
 	server := &http.Server{Addr: ":" + config.ApiPort, Handler: handler, WriteTimeout: 10 * time.Second, ReadTimeout: 2 * time.Second, ReadHeaderTimeout: 2 * time.Second}
 	go func() {
-		log.Println("listening on ", server.Addr)
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		config.GetLogger().Info("listening on " + server.Addr)
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			config.GetLogger().Error("FATAL: api server error", "error", err)
 			log.Fatal("ERROR: api server error", err)
 		}
 	}()
 	go func() {
 		<-ctx.Done()
 		err = server.Shutdown(context.Background())
-		if config.Debug {
-			log.Println("DEBUG: api shutdown", err)
-		}
+		config.GetLogger().Debug("api shutdown")
 	}()
 	return nil
 }
 
 func Router(config configuration.Config, ctrl *controller.Controller) http.Handler {
 	router := httprouter.New()
-	log.Println("add heart beat endpoint")
+	config.GetLogger().Info("add heart beat endpoint")
 	router.GET("/", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		writer.WriteHeader(http.StatusOK)
 	})
 	for _, e := range endpoints {
-		log.Println("add endpoints: " + runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
+		config.GetLogger().Info("add endpoints: " + runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
 		e(router, config, ctrl)
 	}
 	return router

@@ -18,17 +18,17 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/url"
+	"strconv"
+	"time"
+
 	"github.com/SENERGY-Platform/process-deployment/lib/auth"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/controller"
 	"github.com/julienschmidt/httprouter"
-	"log"
-	"net/http"
-	"net/url"
-	"strconv"
-	"time"
 )
 
 func init() {
@@ -42,17 +42,13 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		msg := messages.PrepareRequest{}
 		err := json.NewDecoder(request.Body).Decode(&msg)
 		if err != nil {
-			if config.Debug {
-				log.Println("ERROR:", err)
-			}
+			config.GetLogger().Debug("ERROR: unable to parse request", "error", err)
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
 		result, err, code := ctrl.PrepareDeployment(token, hubId, msg.Xml, msg.Svg)
 		if err != nil {
-			if config.Debug {
-				log.Println("ERROR:", err)
-			}
+			config.GetLogger().Debug("ERROR: unable to prepare deployment", "error", err)
 			http.Error(writer, err.Error(), code)
 			return
 		}
@@ -66,23 +62,19 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		id := params.ByName("modelId")
 		process, err, code := ctrl.GetProcessModel(token, id)
 		if err != nil {
-			if config.Debug {
-				log.Println("ERROR:", err)
-			}
+			config.GetLogger().Debug("ERROR: unable to get process model", "id", id, "error", err)
 			http.Error(writer, err.Error(), code)
 			return
 		}
 		start := time.Now()
 		result, err, code := ctrl.PrepareDeployment(token, hubId, process.BpmnXml, process.SvgXml)
 		if err != nil {
-			if config.Debug {
-				log.Println("ERROR:", err)
-			}
+			config.GetLogger().Debug("ERROR: unable to prepare deployment", "id", id, "error", err)
 			http.Error(writer, err.Error(), code)
 			return
 		}
 		dur := time.Now().Sub(start)
-		log.Println("DEBUG: prepare deployment complete time:", dur, dur.Milliseconds())
+		config.GetLogger().Debug("DEBUG: prepare deployment complete time", "id", id, "duration", dur.Milliseconds())
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		json.NewEncoder(writer).Encode(result)
 	})
@@ -94,7 +86,7 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		deployment := deploymentmodel.Deployment{}
 		err := json.NewDecoder(request.Body).Decode(&deployment)
 		if err != nil {
-			log.Println("ERROR: unable to parse request", err)
+			config.GetLogger().Error("unable to parse request", "error", err)
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -109,9 +101,7 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		}
 		result, err, code := ctrl.CreateDeployment(token, hubId, deployment, source, optionals)
 		if err != nil {
-			if config.Debug {
-				log.Println("ERROR:", err)
-			}
+			config.GetLogger().Debug("ERROR: unable to create deployment", "error", err)
 			http.Error(writer, err.Error(), code)
 			return
 		}
@@ -153,7 +143,7 @@ func DeploymentEndpoints(router *httprouter.Router, config configuration.Config,
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(true)
 		if err != nil {
-			log.Println("ERROR: unable to encode response", err)
+			config.GetLogger().Error("unable to encode response", "error", err)
 		}
 		return
 	})
