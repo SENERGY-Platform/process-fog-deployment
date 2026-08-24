@@ -137,3 +137,67 @@ func NewPermMock(ctx context.Context) (url string, calls *map[string][]string) {
 	}()
 	return server.URL, calls
 }
+
+func (this *PermMock) ListTopicsContext(ctx context.Context, token string, options model.ListOptions) (result []model.Topic, err error, code int) {
+	return this.ListTopics(token, options)
+}
+
+func (this *PermMock) GetTopicContext(ctx context.Context, token string, id string) (result model.Topic, err error, code int) {
+	return this.GetTopic(token, id)
+}
+
+func (this *PermMock) RemoveTopicContext(ctx context.Context, token string, id string) (err error, code int) {
+	return this.RemoveTopic(token, id)
+}
+
+func (this *PermMock) SetTopicContext(ctx context.Context, token string, topic model.Topic) (result model.Topic, err error, code int) {
+	return this.SetTopic(token, topic)
+}
+
+func (this *PermMock) AdminListResourceIdsContext(ctx context.Context, tokenStr string, topicId string, options model.ListOptions) (ids []string, err error, code int) {
+	return this.AdminListResourceIds(tokenStr, topicId, options)
+}
+
+func (this *PermMock) AdminLoadFromPermissionSearchContext(ctx context.Context, req model.AdminLoadPermSearchRequest) (updateCount int, err error, code int) {
+	return this.AdminLoadFromPermissionSearch(req)
+}
+
+func (this *PermMock) ExportContext(ctx context.Context, token string, options model.ImportExportOptions) (result model.ImportExport, err error, code int) {
+	return this.Export(token, options)
+}
+
+func (this *PermMock) ImportContext(ctx context.Context, token string, importModel model.ImportExport, options model.ImportExportOptions) (err error, code int) {
+	return this.Import(token, importModel, options)
+}
+
+func (this *PermMock) CheckPermissionContext(ctx context.Context, token string, topicId string, id string, permissions ...model.Permission) (access bool, err error, code int) {
+	return this.CheckPermission(token, topicId, id, permissions...)
+}
+
+func (this *PermMock) CheckMultiplePermissionsContext(ctx context.Context, token string, topicId string, ids []string, permissions ...model.Permission) (access map[string]bool, err error, code int) {
+	return this.CheckMultiplePermissions(token, topicId, ids, permissions...)
+}
+
+func (this *PermMock) ListAccessibleResourceIdsContext(ctx context.Context, token string, topicId string, options model.ListOptions, permissions ...model.Permission) (ids []string, err error, code int) {
+	return this.ListAccessibleResourceIds(token, topicId, options, permissions...)
+}
+
+func (this *PermMock) ListComputedPermissionsContext(ctx context.Context, token string, topic string, ids []string) (result []model.ComputedPermissions, err error, code int) {
+	return this.ListComputedPermissions(token, topic, ids)
+}
+
+func (this *PermMock) ListResourcesWithAdminPermissionContext(ctx context.Context, token string, topicId string, options model.ListOptions) (result []model.Resource, err error, code int) {
+	return this.ListResourcesWithAdminPermission(token, topicId, options)
+}
+
+func (this *PermMock) GetResourceContext(ctx context.Context, token string, topicId string, id string) (result model.Resource, err error, code int) {
+	return this.GetResource(token, topicId, id)
+}
+
+func (this *PermMock) RemoveResourceContext(ctx context.Context, token string, topicId string, id string) (err error, code int) {
+	return this.RemoveResource(token, topicId, id)
+}
+
+func (this *PermMock) SetPermissionContext(ctx context.Context, token string, topicId string, id string, permissions model.ResourcePermissions) (result model.ResourcePermissions, err error, code int) {
+	return this.SetPermission(token, topicId, id, permissions)
+}

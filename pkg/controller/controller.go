@@ -106,20 +106,26 @@ func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId 
 			hubId:       hubId,
 			processSync: this.processSync,
 		},
-		nil,
+		&DatabaseReplacement{
+			token:       token,
+			hubId:       hubId,
+			processSync: this.processSync,
+		},
 		this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId),
 		nil,
-		ImportsMock{})
+		ImportsMock{},
+		nil,
+		nil)
 	return result
 }
 
 func (this *Controller) ReuseCloudDeploymentWithNewDeviceRepo(hubId string) *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil, ImportsMock{})
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil, ImportsMock{}, nil, nil)
 	return result
 }
 
 func (this *Controller) ReuseCloudDeployment() *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, ""), nil, ImportsMock{})
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, ""), nil, ImportsMock{}, nil, nil)
 	return result
 }
 

@@ -18,7 +18,7 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
+
 	"github.com/SENERGY-Platform/process-deployment/lib/config"
 	"github.com/SENERGY-Platform/process-deployment/lib/interfaces"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/messages"
@@ -31,7 +31,11 @@ type SourcingReplacement struct {
 	processSync ProcessSync
 }
 
-func (this *SourcingReplacement) NewConsumer(ctx context.Context, config config.Config, topic string, listener func(delivery []byte) error) error {
+func (this *SourcingReplacement) NewUserCommandConsumer(ctx context.Context, config config.Config, listener func(delivery messages.UserCommandMsg) error) error {
+	return nil
+}
+
+func (this *SourcingReplacement) NewDeviceGroupConsumer(ctx context.Context, config config.Config, listener func(groupId string) error) error {
 	return nil
 }
 
@@ -42,20 +46,14 @@ type ProducerReplacement struct {
 	processSync ProcessSync
 }
 
-func (this *ProducerReplacement) Produce(topic string, message []byte) error {
-	deplMsg := messages.DeploymentCommand{}
-	err := json.Unmarshal(message, &deplMsg)
-	if err != nil {
+func (this *ProducerReplacement) Produce(command messages.DeploymentCommand) error {
+	if err := validateDeployment(command); err != nil {
 		return err
 	}
-
-	if err = validateDeployment(deplMsg); err != nil {
-		return err
-	}
-	return this.processSync.Deploy(this.token, this.hubId, *deplMsg.Deployment)
+	return this.processSync.Deploy(this.token, this.hubId, *command.Deployment)
 }
 
-func (this *SourcingReplacement) NewProducer(ctx context.Context, config config.Config, topic string) (interfaces.Producer, error) {
+func (this *SourcingReplacement) NewDeploymentProducer(ctx context.Context, config config.Config) (interfaces.DeploymentProducer, error) {
 	return &ProducerReplacement{
 		token:       this.token,
 		hubId:       this.hubId,
