@@ -17,7 +17,6 @@
 package devicerepo
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/process-deployment/lib/auth"
@@ -71,11 +70,6 @@ func (this *DeviceRepo) GetDeviceSelection(token auth.Token, descriptions device
 	return result, errors.New("should never be called"), http.StatusInternalServerError //it would be possible to call GetBulkDeviceSelection() to get a good result but this method is deprecated and should never be used so new code would be wasted effort
 }
 
-type BulkRequestElementWithLocalDeviceFilter struct {
-	deviceselectionmodel.BulkRequestElement
-	LocalDevices []string `json:"local_devices"`
-}
-
 func (this *DeviceRepo) GetBulkDeviceSelectionV2(token auth.Token, bulk deviceselectionmodel.BulkRequestV2) (result deviceselectionmodel.BulkResult, err error, code int) {
 	hub, err, code := this.GetHub(token.Jwt(), this.hubId)
 	if err != nil {
@@ -86,56 +80,6 @@ func (this *DeviceRepo) GetBulkDeviceSelectionV2(token auth.Token, bulk devicese
 		bulk[i] = element
 	}
 	return this.reuse.GetBulkDeviceSelectionV2(token, bulk)
-}
-
-func (this *DeviceRepo) GetBulkDeviceSelection(token auth.Token, bulk deviceselectionmodel.BulkRequest) (result deviceselectionmodel.BulkResult, err error, code int) {
-	hub, err, code := this.GetHub(token.Jwt(), this.hubId)
-	if err != nil {
-		return result, err, code
-	}
-	bulkWithLocalDevices := []BulkRequestElementWithLocalDeviceFilter{}
-	for _, element := range bulk {
-		bulkWithLocalDevices = append(bulkWithLocalDevices, BulkRequestElementWithLocalDeviceFilter{
-			BulkRequestElement: element,
-			LocalDevices:       hub.DeviceLocalIds,
-		})
-	}
-
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
-
-	buff := new(bytes.Buffer)
-	err = json.NewEncoder(buff).Encode(bulkWithLocalDevices)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-
-	path := "/bulk/selectables"
-	req, err := http.NewRequest(
-		"POST",
-		this.config.DeviceSelectionUrl+path,
-		buff,
-	)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-	req.Header.Set("Authorization", token.Jwt())
-
-	resp, err := client.Do(req)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		debug.PrintStack()
-		return result, errors.New("unexpected statuscode"), resp.StatusCode
-	}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	return result, err, resp.StatusCode
 }
 
 func (this *DeviceRepo) GetHub(token string, id string) (result devicemodel.Hub, err error, code int) {

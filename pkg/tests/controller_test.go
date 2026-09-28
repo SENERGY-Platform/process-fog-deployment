@@ -164,7 +164,7 @@ func TestController(t *testing.T) {
 	if !reflect.DeepEqual(*permCalls, expectedPermCalls) {
 		t.Errorf("\n%#v\n%#v", *permCalls, expectedPermCalls)
 	}
-	expectedSelectionsCall := map[string][]string{"/v2/bulk/selectables": {`[{"id":"Task_18tgni4","criteria":[{"function_id":"urn:infai:ses:controlling-function:99240d90-02dd-4d4f-a47c-069cfe77629c","device_class_id":"urn:infai:ses:device-class:997937d6-c5f3-4486-b67c-114675038393","aspect_id":""}],"include_groups":true,"include_imports":false,"include_devices":true,"include_id_modified_devices":false,"local_devices":["e3a7a0a7f35c9c9615839eca59db5b7d-43","2"]}]`}}
+	expectedSelectionsCall := map[string][]string{"/v2/bulk/selectables": {`[{"id":"Task_18tgni4","criteria":[{"function_id":"urn:infai:ses:controlling-function:99240d90-02dd-4d4f-a47c-069cfe77629c","aspect_id":"","device_class_id":"urn:infai:ses:device-class:997937d6-c5f3-4486-b67c-114675038393"}],"include_groups":true,"include_imports":false,"include_devices":true,"include_id_modified_devices":false,"import_path_trim_first_element":false,"devices":null,"local_devices":["e3a7a0a7f35c9c9615839eca59db5b7d-43","2"],"local_device_owner":"","filter_by_device_attribute_keys":null}]`}}
 	if !reflect.DeepEqual(*selectionsCalls, expectedSelectionsCall) {
 		t.Errorf("\n%#v\n%#v", *selectionsCalls, expectedSelectionsCall)
 	}
