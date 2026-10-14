@@ -119,13 +119,14 @@ func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId 
 	return result
 }
 
+// The database must not be nil: ctrl.New starts a sync loop that calls it every interval.
 func (this *Controller) ReuseCloudDeploymentWithNewDeviceRepo(hubId string) *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil, ImportsMock{}, nil, nil)
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, &DatabaseReplacement{}, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil, ImportsMock{}, nil, nil)
 	return result
 }
 
 func (this *Controller) ReuseCloudDeployment() *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, nil, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, ""), nil, ImportsMock{}, nil, nil)
+	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, &DatabaseReplacement{}, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, ""), nil, ImportsMock{}, nil, nil)
 	return result
 }
 
