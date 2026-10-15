@@ -97,9 +97,10 @@ func New(conf configuration.Config, processSync ProcessSync, deviceRepoFactory D
 	}, nil
 }
 
-func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId string) *ctrl.Ctrl {
+// ctrl.New starts a sync loop that runs until ctx is cancelled, so callers cancel ctx once the request is done.
+func (this *Controller) ReuseCloudDeploymentWithProcessSync(ctx context.Context, token string, hubId string) *ctrl.Ctrl {
 	result, _ := ctrl.New(
-		context.Background(),
+		ctx,
 		this.reusedConfig,
 		&SourcingReplacement{
 			token:       token,
@@ -120,13 +121,13 @@ func (this *Controller) ReuseCloudDeploymentWithProcessSync(token string, hubId 
 }
 
 // The database must not be nil: ctrl.New starts a sync loop that calls it every interval.
-func (this *Controller) ReuseCloudDeploymentWithNewDeviceRepo(hubId string) *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, &DatabaseReplacement{}, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil, ImportsMock{}, nil, nil)
+func (this *Controller) ReuseCloudDeploymentWithNewDeviceRepo(ctx context.Context, hubId string) *ctrl.Ctrl {
+	result, _ := ctrl.New(ctx, this.reusedConfig, &SourcingReplacement{}, &DatabaseReplacement{}, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, hubId), nil, ImportsMock{}, nil, nil)
 	return result
 }
 
-func (this *Controller) ReuseCloudDeployment() *ctrl.Ctrl {
-	result, _ := ctrl.New(context.Background(), this.reusedConfig, &SourcingReplacement{}, &DatabaseReplacement{}, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, ""), nil, ImportsMock{}, nil, nil)
+func (this *Controller) ReuseCloudDeployment(ctx context.Context) *ctrl.Ctrl {
+	result, _ := ctrl.New(ctx, this.reusedConfig, &SourcingReplacement{}, &DatabaseReplacement{}, this.deviceRepoFactory(this.config, this.reusedDeviceRepo, ""), nil, ImportsMock{}, nil, nil)
 	return result
 }
 

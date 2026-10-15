@@ -17,6 +17,7 @@
 package controller
 
 import (
+	"context"
 	"github.com/SENERGY-Platform/process-deployment/lib/auth"
 	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"net/http"
@@ -28,7 +29,9 @@ func (this *Controller) PrepareDeployment(token string, hubId string, xml string
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
-	err = this.ReuseCloudDeploymentWithNewDeviceRepo(hubId).SetDeploymentOptions(auth.Token{Token: token}, &result)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	err = this.ReuseCloudDeploymentWithNewDeviceRepo(ctx, hubId).SetDeploymentOptions(auth.Token{Token: token}, &result)
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
@@ -46,7 +49,9 @@ func (this *Controller) CreateDeployment(token string, hubId string, deployment 
 	if err != nil {
 		return result, err, http.StatusInternalServerError
 	}
-	return this.ReuseCloudDeploymentWithProcessSync(token, hubId).
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	return this.ReuseCloudDeploymentWithProcessSync(ctx, token, hubId).
 		CreateDeployment(
 			jwtToken,
 			deployment,
@@ -69,7 +74,9 @@ func (this *Controller) RemoveDeployment(token auth.Token, hubId string, deploym
 }
 
 func (this *Controller) SetExecutableFlag(deployment *deploymentmodel.Deployment) {
-	this.ReuseCloudDeployment().SetExecutableFlag(deployment)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	this.ReuseCloudDeployment(ctx).SetExecutableFlag(deployment)
 }
 
 func (this *Controller) StartDeployment(token auth.Token, hubId string, deploymentId string, inputs url.Values) (err error, code int) {

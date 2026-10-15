@@ -17,10 +17,13 @@
 package tests
 
 import (
+	"context"
+	"runtime"
 	"testing"
 	"time"
 
 	"github.com/SENERGY-Platform/process-deployment/lib/ctrl"
+	"github.com/SENERGY-Platform/process-deployment/lib/model/deploymentmodel"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/configuration"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/controller"
 	"github.com/SENERGY-Platform/process-fog-deployment/pkg/devicerepo"
@@ -42,10 +45,12 @@ func TestReusedCtrlSyncDoesNotPanic(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	ctrls := map[string]*ctrl.Ctrl{
-		"ReuseCloudDeploymentWithNewDeviceRepo": c.ReuseCloudDeploymentWithNewDeviceRepo("hub"),
-		"ReuseCloudDeployment":                  c.ReuseCloudDeployment(),
-		"ReuseCloudDeploymentWithProcessSync":   c.ReuseCloudDeploymentWithProcessSync("token", "hub"),
+		"ReuseCloudDeploymentWithNewDeviceRepo": c.ReuseCloudDeploymentWithNewDeviceRepo(ctx, "hub"),
+		"ReuseCloudDeployment":                  c.ReuseCloudDeployment(ctx),
+		"ReuseCloudDeploymentWithProcessSync":   c.ReuseCloudDeploymentWithProcessSync(ctx, "token", "hub"),
 	}
 	for name, reused := range ctrls {
 		t.Run(name, func(t *testing.T) {
@@ -58,5 +63,33 @@ func TestReusedCtrlSyncDoesNotPanic(t *testing.T) {
 				t.Error(err)
 			}
 		})
+	}
+}
+
+// Each request builds a reused ctrl whose sync loop must end with the request.
+func TestReusedCtrlSyncLoopEndsWithRequest(t *testing.T) {
+	config := &configuration.ConfigStruct{
+		DeviceRepoUrl:      "http://localhost:1",
+		ProcessRepoUrl:     "http://localhost:1",
+		PermissionsV2Url:   "http://localhost:1",
+		DeviceSelectionUrl: "http://localhost:1",
+		ProcessSyncUrl:     "http://localhost:1",
+	}
+	c, err := controller.New(config, processsync.New(config), devicerepo.Factory)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	const requests = 100
+	before := runtime.NumGoroutine()
+	for i := 0; i < requests; i++ {
+		c.SetExecutableFlag(&deploymentmodel.Deployment{})
+	}
+	deadline := time.Now().Add(5 * time.Second)
+	for runtime.NumGoroutine() >= before+requests/2 && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if after := runtime.NumGoroutine(); after >= before+requests/2 {
+		t.Errorf("goroutines grew from %v to %v after %v requests", before, after, requests)
 	}
 }
