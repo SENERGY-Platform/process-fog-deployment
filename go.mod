@@ -6,7 +6,7 @@ require (
 	github.com/SENERGY-Platform/go-service-base/struct-logger v0.8.0
 	github.com/SENERGY-Platform/permissions-v2 v0.0.47
 	github.com/SENERGY-Platform/process-deployment v0.1.0
-	github.com/SENERGY-Platform/service-commons v0.0.0-20260915085610-4949c31a01ef
+	github.com/SENERGY-Platform/service-commons v0.0.0-20261016083822-dec36fce00ad
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.9

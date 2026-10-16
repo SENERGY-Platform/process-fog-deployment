@@ -30,8 +30,8 @@ github.com/SENERGY-Platform/permissions-v2 v0.0.47 h1:TOaYhxAZmH006SYwF/dy2PkmRF
 github.com/SENERGY-Platform/permissions-v2 v0.0.47/go.mod h1:O0DTzApbQnXzDmyQ3KzievzjRF44xQ7n6qdbfQ36Qw8=
 github.com/SENERGY-Platform/process-deployment v0.1.0 h1:zjs8cIN01PHtO/TCoCFdbAqJ+6AjN6IfOED9Dd13Uqg=
 github.com/SENERGY-Platform/process-deployment v0.1.0/go.mod h1:z0nAPDUk/5t8O8wiewFdX5fIK42yQd4mmO7pzCV9/ZM=
-github.com/SENERGY-Platform/service-commons v0.0.0-20260915085610-4949c31a01ef h1:LazqUA3nKDG7DA6Un0yD1jfJsudxLVq7J0a2TNDNdHY=
-github.com/SENERGY-Platform/service-commons v0.0.0-20260915085610-4949c31a01ef/go.mod h1:k1Jia3JItpaM26/SY1ZGyoGhBE8EA5zQrkwSaiFZKGQ=
+github.com/SENERGY-Platform/service-commons v0.0.0-20261016083822-dec36fce00ad h1:89BGue8JorkeIPcrFnPExRO4hpwur1spF3ET63ORn3o=
+github.com/SENERGY-Platform/service-commons v0.0.0-20261016083822-dec36fce00ad/go.mod h1:k1Jia3JItpaM26/SY1ZGyoGhBE8EA5zQrkwSaiFZKGQ=
 github.com/beevik/etree v1.4.0 h1:oz1UedHRepuY3p4N5OjE0nK1WLCqtzHf25bxplKOHLs=
 github.com/beevik/etree v1.4.0/go.mod h1:cyWiXwGoasx60gHvtnEh5x8+uIjUVnjWqBvEnhnqKDA=
 github.com/bradfitz/gomemcache v0.0.0-20230905024940-24af94b03874 h1:N7oVaKyGp8bttX0bfZGmcGkjz7DLQXhAn3DNd3T0ous=
